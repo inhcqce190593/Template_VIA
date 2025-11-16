@@ -1,87 +1,207 @@
-Hướng dẫn sử dụng Template cho mạch VIA
+# VIA Board Template – Training STEM FPTU 2025
 
-## Các thông thông số điều khiển
-
-* Điều khiển 4 motor DC độc lập (lái vi sai) bằng 2 joystick.
-* Chế độ "Turbo" (Nút R2) để tăng tốc độ.
-* Điều khiển 6 servo (bao gồm cả loại 180° và 360°) bằng các nút bấm.
-* Giao tiếp qua Serial Monitor để debug.
-* Cấu trúc code C++ sạch sẽ, tách biệt file Header (.h) và Source (.cpp).
+**Template điều khiển Robot dùng ESP32 + PS2 + PCA9685**
+Điều khiển đồng thời **4 motor DC** và **6 servo**, code tách file rõ ràng, dễ mở rộng, phù hợp cho giảng dạy – nghiên cứu – CLB STEM.
 
 ---
 
-## ⚙️ Cấu hình Phần cứng & Pinout
 
-### 1. Thành phần
-* **Vi điều khiển:** ESP32 (hoặc tương đương).
-* **Đầu vào:** Tay cầm PlayStation 2 (PS2) và mạch chuyển.
-* **Điều khiển:** Module 16 kênh PWM PCA9685 (điều khiển motor & servo).
-* **Driver Motor:** Cần 2-4 driver (ví dụ: L298N, TB6612) để điều khiển 4 motor DC.
-* **Đầu ra:** 4 Motor DC và 6 Servo.
+# Giới thiệu
+Template mẫu điều khiển robot:
+- ESP32 làm vi điều khiển
+- Điều khiển bằng tay cầm PS2
+- PCA9685 điều khiển nhiều PWM
+- 4 Motor DC + 6 Servo hoạt động độc lập
+- Code tách `*.h` và `*.cpp` kiểu chuyên nghiệp
 
-### 2. Sơ đồ Kết nối
+---
 
-#### Kết nối Tay cầm PS2 (File: `PS2_controller.h`)
-| Chức năng | Chân ESP32 |
-| :--- | :--- |
-| PS2_DAT (MOSI) | 12 |
-| PS2_CMD (MISO) | 13 |
-| PS2_SEL (SS) | 15 |
-| PS2_CLK (SLK) | 14 |
+# Tính năng
 
-#### Kết nối Module PCA9685 (I2C)
-* **SDA**: GPIO 21
-* **SCL**: GPIO 22
+### Điều khiển Motor
+- Joystick trái + phải điều khiển 4 motor
+- R2 = bật Turbo (tốc độ tối đa)
+- Có thể mở rộng các nút D-Pad, L1, R1
 
-#### Sơ đồ Kênh PCA9685
-| Kênh (Channel) | Chức năng | Chi tiết (từ code) |
-| :--- | :--- | :--- |
+### 🤖 Điều khiển Servo
+- 6 Servo (180° & 360°)
+- Nút L2, L3, △, X, □ được gán sẵn
+- Dễ dàng thêm nút trong `servo_control.cpp`
+
+---
+
+# Phần cứng cần có
+
+| Thiết bị | Vai trò |
+|---------|---------|
+| ESP32 | MCU chính |
+| PS2 Controller + adapter | Remote điều khiển |
+| PCA9685 | Xuất PWM servo/motor |
+| L298N / TB6612 | Driver cho 4 Motor DC |
+| 4 DC Motor | Drive |
+| 6 Servo 180° / 360° | Servo Control |
+
+---
+
+# Kết nối phần cứng
+
+## Kết nối PS2 → ESP32
+
+| PS2 | ESP32 |
+|-----|--------|
+| DAT | 12 |
+| CMD | 13 |
+| SEL | 15 |
+| CLK | 14 |
+
+---
+
+## Kết nối PCA9685 → ESP32
+
+| PCA9685 | ESP32 |
+|----------|--------|
+| SDA | 21 |
+| SCL | 22 |
+
+---
+
+## Bảng kênh PCA9685 (mapping trong code)
+
+| Channel | Thiết bị | Biến code |
+|---------|----------|------------|
 | 2 | Servo 1 (180°) | `SERVO_180_1` |
 | 3 | Servo 2 (180°) | `SERVO_180_2` |
 | 4 | Servo 3 (180°) | `SERVO_180_3` |
 | 5 | Servo 4 (180°) | `SERVO_180_4` |
 | 6 | Servo 5 (360°) | `SERVO_360_1` |
 | 7 | Servo 6 (360°) | `SERVO_360_2` |
-| 8, 9 | Motor 1 (DC) | `PWM_CHANNEL1`, `PWM_CHANNEL2` |
-| 10, 11 | Motor 2 (DC) | `PWM_CHANNEL3`, `PWM_CHANNEL4` |
-| 13, 12 | Motor 3 (DC) | `PWM_CHANNER1`, `PWM_CHANNER2` |
-| 14, 15 | Motor 4 (DC) | `PWM_CHANNER3`, `PWM_CHANNER4` |
+| 8–9 | Motor 1 | PWM 1–2 |
+| 10–11 | Motor 2 | PWM 3–4 |
+| 12–13 | Motor 3 | PWM 5–6 |
+| 14–15 | Motor 4 | PWM 7–8 |
 
 ---
 
-## 🕹️ Sơ đồ Điều khiển
+# Điều khiển Motor & Servo
 
-### Điều khiển Motor (`motor_control.h`)
-* **Joystick Phải**: Điều khiển **Motor 1** và **Motor 2**.
-* **Joystick Trái**: Điều khiển **Motor 3** và **Motor 4**.
-* **Giữ R2**: Kích hoạt "Turbo" (`TOP_SPEED`).
-* **Giữ D-Pad Lên**: Chạy Motor 1 tới.
-* **Giữ D-Pad Xuống**: Chạy Motor 2 lùi.
-* *(Các nút D-Pad, L1, R1... khác cho motor hiện đang bị vô hiệu hóa (comment) trong `motor_control.cpp`).*
+## Motor Control
 
-### Điều khiển Servo (`servo_control.h`)
-* **Giữ L3**: Servo 1 (Kênh 2) quay ra MAX.
-* **Giữ L2**: Servo 1 (Kênh 2) quay về MIN.
-* **Thả L2/L3**: Servo 1 (Kênh 2) tự động về MIN.
-* **Nhấn Tam Giác**: Servo 6 (Kênh 7) quay tới.
-* **Nhấn X**: Servo 6 (Kênh 7) quay lùi.
-* **Nhấn Vuông**: Servo 6 (Kênh 7) dừng.
-* **Servo 2, 3, 4, 5**: Hiện chưa được gán nút điều khiển.
+| Nút | Chức năng |
+|-----|-----------|
+| Joystick phải | Motor 1 & 2 |
+| Joystick trái | Motor 3 & 4 |
+| **R2** | Turbo Mode |
+| D-Pad ↑ | Motor 1 tiến |
+| D-Pad ↓ | Motor 2 lùi |
 
 ---
 
-## 🔧 Cài đặt & Tùy chỉnh
+## Servo Control
 
-### 1. Thư viện cần thiết
-Đảm bảo bạn đã cài đặt các thư viện sau qua Library Manager:
-* `PS2X_lib`
-* `Adafruit_PWMServoDriver`
-* `Wire` (Thường có sẵn)
+| Nút | Chức năng |
+|-----|-----------|
+| L3 giữ | Servo 1 → MAX |
+| L2 giữ | Servo 1 → MIN |
+| △ | Servo 6 tiến |
+| X | Servo 6 lùi |
+| □ | Servo 6 dừng |
 
-### 2. Tùy chỉnh Điều khiển
-* **Để thêm nút cho Motor:** Mở `motor_control.cpp` và bỏ comment (uncomment) các khối `else if` cho `PSB_PAD_LEFT`, `PSB_L1`, v.v.
-* **Để thêm nút cho Servo:** Mở `servo_control.cpp` và thêm logic cho các biến `servo_180_2_pos`, `servo_360_1_state`, v.v. bên trong hàm `handleServoInput()`.
-* **Hiệu chỉnh Servo:** Mở `servo_control.h` và điều chỉnh các giá trị `SERVO_180_MIN`, `SERVO_180_MAX` cho đến khi servo quay đúng góc 0-180.
+---
 
-## 📄 Giấy phép (License)
-Dự án này được phát hành dưới Giấy phép MIT. Xem tệp `LICENSE` để biết chi tiết.
+# Cấu trúc thư mục
+
+\`\`\`
+📁 VIA-Template
+ ┣ 📁 src
+ │   ┣ motor_control.cpp
+ │   ┣ motor_control.h
+ │   ┣ servo_control.cpp
+ │   ┣ servo_control.h
+ │   ┣ PS2_controller.h
+ │   ┗ main.ino
+ ┣ 📁 lib
+ ┣ LICENSE
+ ┗ README.md
+\`\`\`
+
+---
+
+# Cài đặt & Thư viện
+
+### Library cần cài:
+
+- PS2X_lib
+- Adafruit PWM Servo Driver
+- Wire (có sẵn)
+
+---
+
+# Chạy thử
+
+1. Upload code vào ESP32  
+2. Mở Serial Monitor  
+3. Nhấn nút PS2 để kiểm tra kết nối  
+4. Thử joystick để xem motor chạy  
+5. Nhấn L2, L3 hoặc △, X, □ để test servo  
+
+---
+
+# Tùy chỉnh nâng cao
+
+## 🎚 Chỉnh góc servo
+Trong `servo_control.h`:
+
+```cpp
+#define SERVO_180_MIN 110
+#define SERVO_180_MAX 500
+```
+
+## Thêm nút cho motor
+Trong `motor_control.cpp`:
+
+```cpp
+else if (ps2x.Button(PSB_L1)) { ... }
+```
+
+## Thêm nút cho servo
+Trong `servo_control.cpp → handleServoInput()`:
+
+```cpp
+servo_180_2_pos = ...
+servo_360_1_state = ...
+```
+
+---
+
+# API Functions
+
+## Motor API
+```cpp
+void setupMotors();
+void setMotorSpeed(int motor, int speed);
+void handleMotorInput();
+```
+
+## Servo API
+```cpp
+void setupServo();
+void setServoAngle(int channel, int angle);
+void handleServoInput();
+```
+
+## PS2 API
+```cpp
+void setupPS2controller();
+bool readPS2();
+```
+
+---
+
+# Hướng dẫn
+- Nguyễn Thành Công  
+- Châu Quốc Inh  
+
+---
+
+# License
+Phát hành theo **MIT License**.
