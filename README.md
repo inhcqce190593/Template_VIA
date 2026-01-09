@@ -1,160 +1,168 @@
-# VIA Board Template – Training STEM FPTU 2025
+# VIA Board Template - Training STEM FPTU 2025
 
-**Template điều khiển Robot dùng ESP32 + PS2 + PCA9685**
-Điều khiển đồng thời **4 motor DC** và **6 servo**, code tách file rõ ràng, dễ mở rộng, phù hợp cho giảng dạy – nghiên cứu – CLB STEM.
+Template dieu khien robot dung ESP32, PS2 Controller va PCA9685.
 
----
-
-
-# Giới thiệu
-Template mẫu điều khiển robot:
-- ESP32 làm vi điều khiển
-- Điều khiển bằng tay cầm PS2
-- PCA9685 điều khiển nhiều PWM
-- 4 Motor DC + 6 Servo hoạt động độc lập
-- Code tách `*.h` và `*.cpp` kiểu chuyên nghiệp
+Ho tro dieu khien dong thoi 4 DC Motor va 6 Servo.  
+Code duoc tach file ro rang, de mo rong, phu hop cho giang day, nghien cuu va CLB STEM.
 
 ---
 
-# Tính năng
+## Gioi thieu
 
-### Điều khiển Motor
-- Joystick trái + phải điều khiển 4 motor
-- R2 = bật Turbo (tốc độ tối đa)
-- Có thể mở rộng các nút D-Pad, L1, R1
-
-### Điều khiển Servo
-- 6 Servo (180° & 360°)
-- Nút L2, L3, △, X, □ được gán sẵn
-- Dễ dàng thêm nút trong `servo_control.cpp`
+Template mau dieu khien robot voi cac thanh phan:
+- ESP32 lam vi dieu khien trung tam
+- PS2 Controller lam thiet bi dieu khien
+- PCA9685 mo rong PWM qua I2C
+- 4 DC Motor va 6 Servo (180 va 360)
+- Code tach file .h va .cpp theo cau truc chuyen nghiep
 
 ---
 
-# Phần cứng cần có
+## Tinh nang
 
-| Thiết bị | Vai trò |
-|---------|---------|
-| ESP32 | MCU chính |
-| PS2 Controller + adapter | Remote điều khiển |
-| PCA9685 | Xuất PWM servo/motor |
-| L298N / TB6612 | Driver cho 4 Motor DC |
-| 4 DC Motor | Drive |
-| 6 Servo 180° / 360° | Servo Control |
+### Dieu khien Motor
+- Joystick trai va phai dieu khien 4 motor
+- Nut R2 bat Turbo Mode (toc do toi da)
+- Co the mo rong D-Pad, L1, R1
+
+### Dieu khien Servo
+- Ho tro 6 servo (180 va 360)
+- Nut L2, L3, TRIANGLE, X, SQUARE da duoc gan san
+- De mo rong trong file servo_control.cpp
 
 ---
 
-# Kết nối phần cứng
+## Phan cung can co
 
-## Kết nối PS2 → ESP32
+| Thiet bi | Vai tro |
+|--------|--------|
+| ESP32 | MCU chinh |
+| PS2 Controller + Adapter | Dieu khien |
+| PCA9685 | Xuat PWM |
+| L298N / TB6612 | Driver DC Motor |
+| 4 DC Motor | Truyen dong |
+| 6 Servo | Dieu khien co cau |
 
-| PS2 | ESP32 |
-|-----|--------|
+---
+
+## Ket noi phan cung
+
+### PS2 Controller ket noi ESP32
+
+| PS2 | ESP32 GPIO |
+|----|------------|
 | DAT | 12 |
 | CMD | 13 |
 | SEL | 15 |
 | CLK | 14 |
 
----
+### PCA9685 ket noi ESP32
 
-## Kết nối PCA9685 → ESP32
-
-| PCA9685 | ESP32 |
-|----------|--------|
+| PCA9685 | ESP32 GPIO |
+|--------|------------|
 | SDA | 21 |
 | SCL | 22 |
 
 ---
 
-## Bảng kênh PCA9685 (mapping trong code)
+## Mapping kenh PCA9685
 
-| Channel | Thiết bị | Biến code |
-|---------|----------|------------|
-| 2 | Servo 1 (180°) | `SERVO_180_1` |
-| 3 | Servo 2 (180°) | `SERVO_180_2` |
-| 4 | Servo 3 (180°) | `SERVO_180_3` |
-| 5 | Servo 4 (180°) | `SERVO_180_4` |
-| 6 | Servo 5 (360°) | `SERVO_360_1` |
-| 7 | Servo 6 (360°) | `SERVO_360_2` |
-| 8–9 | Motor 1 | PWM 1–2 |
-| 10–11 | Motor 2 | PWM 3–4 |
-| 12–13 | Motor 3 | PWM 5–6 |
-| 14–15 | Motor 4 | PWM 7–8 |
-
----
-
-# Điều khiển Motor & Servo
-
-## Motor Control
-
-| Nút | Chức năng |
-|-----|-----------|
-| Joystick phải | Motor 1 & 2 |
-| Joystick trái | Motor 3 & 4 |
-| **R2** | Turbo Mode |
-| D-Pad ↑ | Motor 1 tiến |
-| D-Pad ↓ | Motor 2 lùi |
+| Channel | Thiet bi | Bien trong code |
+|--------|---------|----------------|
+| 2 | Servo 1 (180) | SERVO_180_1 |
+| 3 | Servo 2 (180) | SERVO_180_2 |
+| 4 | Servo 3 (180) | SERVO_180_3 |
+| 5 | Servo 4 (180) | SERVO_180_4 |
+| 6 | Servo 5 (360) | SERVO_360_1 |
+| 7 | Servo 6 (360) | SERVO_360_2 |
+| 8-9 | Motor 1 | PWM 1-2 |
+| 10-11 | Motor 2 | PWM 3-4 |
+| 12-13 | Motor 3 | PWM 5-6 |
+| 14-15 | Motor 4 | PWM 7-8 |
 
 ---
 
-## Servo Control
+## Dieu khien
 
-| Nút | Chức năng |
-|-----|-----------|
-| L3 giữ | Servo 1 → MAX |
-| L2 giữ | Servo 1 → MIN |
-| △ | Servo 6 tiến |
-| X | Servo 6 lùi |
-| □ | Servo 6 dừng |
+### Motor Control
+
+| Nut | Chuc nang |
+|----|-----------|
+| Joystick phai | Motor 1 va 2 |
+| Joystick trai | Motor 3 va 4 |
+| R2 | Turbo Mode |
+| D-Pad Up | Motor 1 tien |
+| D-Pad Down | Motor 2 lui |
+
+### Servo Control
+
+| Nut | Chuc nang |
+|----|-----------|
+| L3 (giu) | Servo 1 ve MAX |
+| L2 (giu) | Servo 1 ve MIN |
+| TRIANGLE | Servo 6 tien |
+| X | Servo 6 lui |
+| SQUARE | Servo 6 dung |
 
 ---
 
-# Cấu trúc thư mục
+## Cau truc thu muc
+
+
 
 \`\`\`
-📁 VIA-Template
- ┣ 📁 src
- │   ┣ motor_control.cpp
- │   ┣ motor_control.h
- │   ┣ servo_control.cpp
- │   ┣ servo_control.h
- │   ┣ PS2_controller.h
- │   ┗ main.ino
- ┣ 📁 lib
- ┣ LICENSE
- ┗ README.md
+📁 TTemplate_VIA
+    │   LICENSE
+    │   README.md
+    │
+    ├───code_PS2_Control
+    │       PS2_Controller.ino
+    │
+    ├───include
+    │       motors.h
+    │       motor_control.h
+    │       PS2_controller.h
+    │       servo_control.h
+    │
 \`\`\`
 
 ---
 
-# Cài đặt & Thư viện
+## Cai dat thu vien
 
-### Library cần cài:
-
+Cai dat bang Arduino Library Manager:
 - PS2X_lib
 - Adafruit PWM Servo Driver
-- Wire (có sẵn)
+- Wire (mac dinh)
+
+---
+## Hướng dẫn thiết lập (Quan trọng)
+Để biên dịch thành công trên Arduino IDE, bạn cần thực hiện các bước sau:
+
+1. Khởi tạo dự án: Mở file PS2_controller.ino.
+
+2. Tạo thư mục: Khi Arduino IDE yêu cầu tạo thư mục, nhấn OK. IDE sẽ tạo thư mục tên PS2_controller.
+
+3. Di chuyển thư viện: Sao chép/Di chuyển toàn bộ các file .h từ thư mục include vào trong thư mục PS2_controller vừa được tạo.
+
+---
+## Chay thu
+
+1. Upload code vao ESP32
+2. Mo Serial Monitor
+3. Nhan nut PS2 de kiem tra ket noi
+4. Test joystick de dieu khien motor
+5. Test servo bang L2, L3, TRIANGLE, X, SQUARE
 
 ---
 
-# Chạy thử
+## Tuy chinh
 
-1. Upload code vào ESP32  
-2. Mở Serial Monitor  
-3. Nhấn nút PS2 để kiểm tra kết nối  
-4. Thử joystick để xem motor chạy  
-5. Nhấn L2, L3 hoặc △, X, □ để test servo  
-
----
-
-# Tùy chỉnh nâng cao
-
-##Chỉnh góc servo
-Trong `servo_control.h`:
+### Chinh goc Servo 180
 
 ```cpp
 #define SERVO_180_MIN 110
 #define SERVO_180_MAX 500
-```
 
 ## Thêm nút cho motor
 Trong `motor_control.cpp`:
