@@ -134,7 +134,10 @@ Cai dat bang Arduino Library Manager:
 - PS2X_lib
 - Adafruit PWM Servo Driver
 - Wire (mac dinh)
-
+- Do thư viện PS2 cho ESP32 cần bản tùy chỉnh, bạn hãy sử dụng file đi kèm:
++ File: Arduino-PS2X-ESP32-Makerbot-master.zip
++ Cách cài: * Trong Arduino IDE, chọn Sketch -> Include Library -> Add .ZIP Library...
++ Chọn file Arduino-PS2X-ESP32-Makerbot-master.zip để cài đặt.
 ---
 ## Hướng dẫn thiết lập (Quan trọng)
 Để biên dịch thành công trên Arduino IDE, bạn cần thực hiện các bước sau:
